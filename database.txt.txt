@@ -1,0 +1,176 @@
+package Employee;
+import java.io.*;
+import java.util.*;
+
+public class EmployeeManagementSystem {
+    private static final String FILE_PATH = "employees.txt";
+    private static List<Employee> employees;
+
+    public static void main(String[] args) {
+        employees = new ArrayList<>();
+        loadEmployees();
+
+        Scanner scanner = new Scanner(System.in);
+        boolean exit = false;
+
+        while (!exit) {
+            System.out.println("\nEmployee Management System");
+            System.out.println("1. Add Employee");
+            System.out.println("2. View Employees");
+            System.out.println("3. Update Employee");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
+
+            switch (choice) {
+                case 1:
+                    addEmployee(scanner);
+                    break;
+                case 2:
+                    viewEmployees();
+                    break;
+                case 3:
+                    updateEmployee(scanner);
+                    break;
+                case 4:
+                    saveEmployees();
+                    exit = true;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    break;
+            }
+        }
+
+        scanner.close();
+    }
+
+    private static void loadEmployees() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                int id = Integer.parseInt(data[0]);
+                String name = data[1];
+                double salary = Double.parseDouble(data[2]);
+                employees.add(new Employee(id, name, salary));
+            }
+        } catch (IOException e) {
+            // File does not exist or cannot be read
+        }
+    }
+
+    private static void saveEmployees() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
+            for (Employee employee : employees) {
+                writer.write(employee.getId() + "," + employee.getName() + "," + employee.getSalary());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Unable to save employees.");
+        }
+    }
+
+    private static void addEmployee(Scanner scanner) {
+        System.out.print("Enter employee ID: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        System.out.print("Enter employee name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter employee salary: ");
+        double salary = scanner.nextDouble();
+
+        employees.add(new Employee(id, name, salary));
+        System.out.println("Employee added successfully.");
+    }
+
+    private static void viewEmployees() {
+        if (employees.isEmpty()) {
+            System.out.println("No employees found.");
+            return;
+        }
+
+        System.out.println("\nEmployee List:");
+        for (Employee employee : employees) {
+            System.out.println(employee);
+        }
+    }
+
+    private static void updateEmployee(Scanner scanner) {
+        System.out.print("Enter employee ID to update: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        Employee employeeToUpdate = null;
+        for (Employee employee : employees) {
+            if (employee.getId() == id) {
+                employeeToUpdate = employee;
+                break;
+            }
+        }
+
+        if (employeeToUpdate == null) {
+            System.out.println("Employee not found.");
+            return;
+        }
+
+        System.out.print("Enter new name (press Enter to skip): ");
+        String name = scanner.nextLine();
+        if (!name.isEmpty()) {
+            employeeToUpdate.setName(name);
+        }
+
+        System.out.print("Enter new salary (press 0 to skip): ");
+        double salary = scanner.nextDouble();
+        if (salary != 0) {
+            employeeToUpdate.setSalary(salary);
+        }
+
+        System.out.println("Employee updated successfully.");
+    }
+}
+
+
+
+
+package Employee;
+class Employee {
+    private int id;
+    private String name;
+    private double salary;
+
+    public Employee(int id, String name, double salary) {
+        this.id = id;
+        this.name = name;
+        this.salary = salary;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(double salary) {
+        this.salary = salary;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Name: " + name + ", Salary: " + salary;
+    }
+}
